@@ -1,4 +1,4 @@
-package com.mjurik.web.forms;
+package com.mjurik.web.data;
 
 import java.io.Serializable;
 

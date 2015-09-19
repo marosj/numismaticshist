@@ -8,8 +8,8 @@ import com.mjurik.web.crawler.db.IgnoredPathPersistence;
 import com.mjurik.web.crawler.db.NumEuPersistence;
 import com.mjurik.web.crawler.db.entity.EuronEuResult;
 import com.mjurik.web.crawler.db.entity.NumEuResult;
-import com.mjurik.web.forms.CrawlerResult;
-import com.mjurik.web.forms.CrawlerSource;
+import com.mjurik.web.data.CrawlerResult;
+import com.mjurik.web.data.CrawlerSource;
 
 /**
  * Created by Marian Jurik on 19.9.2015.

@@ -1,6 +1,6 @@
-package com.mjurik.web.forms;
+package com.mjurik.web.views.forms;
 
-import com.mjurik.CrawlerResultsUI;
+import com.mjurik.web.data.CrawlerResult;
 import com.mjurik.web.services.ResultsService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -8,6 +8,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
@@ -17,14 +18,14 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class CrawlerResultForm extends FormLayout {
 
-    Button save = new Button("Save", this::save);
-    Button ignore = new Button("Ignore", this::ignore);
+    Button save = new Button("Save as new", this::save);
+    Button ignore = new Button("Ignore path", this::ignore);
     Button cancel = new Button("Cancel", this::cancel);
 
     TextField name = new TextField("Name");
     TextField ean = new TextField("Ean");
     TextField id = new TextField("id");
-    TextField path = new TextField("Path");
+    Label path = new Label();
     TextField price = new TextField("Price");
     TextField variant = new TextField("Variant");
     TextField source = new TextField("Source");
@@ -35,7 +36,16 @@ public class CrawlerResultForm extends FormLayout {
 
     ResultsService service = ResultsService.getInstance();
 
-    public CrawlerResultForm() {
+    ParentTable parentTable;
+
+    public interface ParentTable {
+        void unSelectResult();
+
+        void refreshResults();
+    }
+
+    public CrawlerResultForm(ParentTable parentTable) {
+        this.parentTable = parentTable;
         configureComponents();
         buildLayout();
     }
@@ -44,7 +54,7 @@ public class CrawlerResultForm extends FormLayout {
         save.setStyleName(ValoTheme.BUTTON_PRIMARY);
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         id.setEnabled(false);
-        path.setEnabled(false);
+        path.setCaption("Path");
         source.setEnabled(false);
         setVisible(false);
     }
@@ -66,12 +76,11 @@ public class CrawlerResultForm extends FormLayout {
             service.ignore(crawlerResult.getSource(), crawlerResult.getId(), crawlerResult.getPath());
             Notification.show(String.format("Path '%s' added as ignored", crawlerResult.getPath()),
                     Notification.Type.TRAY_NOTIFICATION);
-            getUI().unSelectResult();
-            getUI().refreshResults();
+            parentTable.unSelectResult();
+            parentTable.refreshResults();
         } catch (FieldGroup.CommitException e) {
             e.printStackTrace();
         }
-
     }
 
     public void save(Button.ClickEvent event) {
@@ -84,7 +93,7 @@ public class CrawlerResultForm extends FormLayout {
             String msg = String.format("Saved '%s'.",
                     crawlerResult.getName());
             Notification.show(msg, Notification.Type.TRAY_NOTIFICATION);
-            getUI().refreshResults();
+            parentTable.refreshResults();
         } catch (FieldGroup.CommitException e) {
             // Validation exceptions could be shown here
 
@@ -95,20 +104,17 @@ public class CrawlerResultForm extends FormLayout {
 
     public void cancel(Button.ClickEvent event) {
         Notification.show("Cancelled", Notification.Type.TRAY_NOTIFICATION);
-        getUI().unSelectResult();
+        parentTable.unSelectResult();
     }
 
     public void edit(CrawlerResult crawlerResult) {
         this.crawlerResult = crawlerResult;
         if(crawlerResult != null) {
             formFieldBindings = BeanFieldGroup.bindFieldsBuffered(crawlerResult, this);
+            path.setPropertyDataSource(formFieldBindings.getItemDataSource().getItemProperty("path"));
             name.focus();
         }
         setVisible(crawlerResult != null);
     }
 
-    @Override
-    public CrawlerResultsUI getUI() {
-        return (CrawlerResultsUI) super.getUI();
-    }
 }

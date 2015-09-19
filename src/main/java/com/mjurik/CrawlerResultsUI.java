@@ -2,18 +2,16 @@ package com.mjurik;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.mjurik.web.forms.CrawlerResult;
-import com.mjurik.web.forms.CrawlerResultForm;
-import com.mjurik.web.services.ResultsService;
+import com.mjurik.web.views.CoinsTable;
+import com.mjurik.web.views.CrawlerResultsTable;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Grid;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -21,12 +19,13 @@ import com.vaadin.ui.VerticalLayout;
 @Title("Numismatics History")
 public class CrawlerResultsUI extends UI {
 
-    TextField filter = new TextField();
-    Grid crawlerResults = new Grid();
+    Button crawler = new Button("Crawler", this::displayCrawler);
+    Button coins = new Button("Coins", this::displayCoins);
 
-    CrawlerResultForm resultForm = new CrawlerResultForm();
+    Panel content = new Panel();
+    CrawlerResultsTable resultsTable = new CrawlerResultsTable();
+    CoinsTable coinsTable = new CoinsTable();
 
-    ResultsService service = ResultsService.getInstance();
 
     @Override
     protected void init(VaadinRequest request) {
@@ -36,46 +35,29 @@ public class CrawlerResultsUI extends UI {
 
     private void configureComponents() {
 
-        filter.setInputPrompt("Filter results...");
-        filter.addTextChangeListener(e -> refreshResults(e.getText()));
+    }
 
-        crawlerResults.setContainerDataSource(new BeanItemContainer<>(CrawlerResult.class));
-        crawlerResults.setColumnOrder("name", "price", "variant", "source");
-        crawlerResults.removeColumn("id");
-        crawlerResults.removeColumn("ean");
-        crawlerResults.removeColumn("path");
-        crawlerResults.setSelectionMode(Grid.SelectionMode.SINGLE);
-        crawlerResults.addSelectionListener(e
-                -> resultForm.edit((CrawlerResult) crawlerResults.getSelectedRow()));
-        refreshResults();
+    public void displayCrawler(Button.ClickEvent event) {
+        content.setContent(resultsTable);
+    }
+
+    public void displayCoins(Button.ClickEvent event) {
+        content.setContent(coinsTable);
     }
 
     private void buildLayout() {
-        VerticalLayout left = new VerticalLayout(filter, crawlerResults);
-        left.setSizeFull();
-        crawlerResults.setSizeFull();
-        left.setExpandRatio(crawlerResults, 1);
 
-        HorizontalLayout mainLayout = new HorizontalLayout(left, resultForm);
+        HorizontalLayout actions = new HorizontalLayout(crawler, coins);
+        actions.setSpacing(true);
+
+        VerticalLayout mainLayout = new VerticalLayout(actions, content);
         mainLayout.setSizeFull();
-        mainLayout.setExpandRatio(left, 1);
+        content.setSizeFull();
+        mainLayout.setExpandRatio(content, 1);
 
-        // Split and allow resizing
+        displayCrawler(null);
+
         setContent(mainLayout);
-    }
-
-    public void unSelectResult() {
-        crawlerResults.select(null);
-    }
-
-    public void refreshResults() {
-        refreshResults(filter.getValue());
-    }
-
-    private void refreshResults(String stringFilter) {
-        crawlerResults.setContainerDataSource(new BeanItemContainer<>(
-                CrawlerResult.class, service.findAll(stringFilter)));
-        resultForm.setVisible(false);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
