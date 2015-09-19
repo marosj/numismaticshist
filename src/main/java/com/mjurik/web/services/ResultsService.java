@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mjurik.web.crawler.db.EuronEuPersistence;
+import com.mjurik.web.crawler.db.IgnoredPathPersistence;
 import com.mjurik.web.crawler.db.NumEuPersistence;
 import com.mjurik.web.crawler.db.entity.EuronEuResult;
 import com.mjurik.web.crawler.db.entity.NumEuResult;
@@ -59,6 +60,19 @@ public class ResultsService {
             }
         }
         return result;
+    }
+
+    public void ignore(CrawlerSource source, String id, String path) {
+        IgnoredPathPersistence.INSTANCE.persistIgnoredPath(source.toString(), path);
+        switch (source) {
+            case NUMIZMATIK:
+                NumEuPersistence.INSTANCE.setAsProcessed(id);
+                break;
+            case EURONUMIS:
+                EuronEuPersistence.INSTANCE.setAsProcessed(id);
+                break;
+        }
+
     }
 
     private CrawlerResult toCrawlerResult(EuronEuResult euronEuResult) {

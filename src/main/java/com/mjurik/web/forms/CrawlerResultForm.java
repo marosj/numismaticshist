@@ -1,6 +1,7 @@
 package com.mjurik.web.forms;
 
 import com.mjurik.CrawlerResultsUI;
+import com.mjurik.web.services.ResultsService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.ShortcutAction;
@@ -17,6 +18,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class CrawlerResultForm extends FormLayout {
 
     Button save = new Button("Save", this::save);
+    Button ignore = new Button("Ignore", this::ignore);
     Button cancel = new Button("Cancel", this::cancel);
 
     TextField name = new TextField("Name");
@@ -30,6 +32,8 @@ public class CrawlerResultForm extends FormLayout {
     CrawlerResult crawlerResult;
 
     BeanFieldGroup<CrawlerResult> formFieldBindings;
+
+    ResultsService service = ResultsService.getInstance();
 
     public CrawlerResultForm() {
         configureComponents();
@@ -49,15 +53,29 @@ public class CrawlerResultForm extends FormLayout {
         setSizeUndefined();
         setMargin(true);
 
-        HorizontalLayout actions = new HorizontalLayout(save, cancel);
+        HorizontalLayout actions = new HorizontalLayout(save, ignore, cancel);
         actions.setSpacing(true);
 
         addComponents(actions, id, name, price, variant, ean, path, source);
     }
 
+    public void ignore(Button.ClickEvent event) {
+        try {
+            formFieldBindings.commit();
+
+            service.ignore(crawlerResult.getSource(), crawlerResult.getId(), crawlerResult.getPath());
+            Notification.show(String.format("Path '%s' added as ignored", crawlerResult.getPath()),
+                    Notification.Type.TRAY_NOTIFICATION);
+            getUI().unSelectResult();
+            getUI().refreshResults();
+        } catch (FieldGroup.CommitException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public void save(Button.ClickEvent event) {
         try {
-            // Commit the fields from UI to DAO
             formFieldBindings.commit();
 
             // Save DAO to backend with direct synchronous service API
@@ -69,6 +87,8 @@ public class CrawlerResultForm extends FormLayout {
             getUI().refreshResults();
         } catch (FieldGroup.CommitException e) {
             // Validation exceptions could be shown here
+
+            e.printStackTrace();
         }
     }
 
