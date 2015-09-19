@@ -6,8 +6,8 @@ import com.mjurik.web.forms.CrawlerResult;
 import com.mjurik.web.forms.CrawlerResultForm;
 import com.mjurik.web.services.ResultsService;
 import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
@@ -17,12 +17,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-/**
- *
- */
-@Theme("mytheme")
-@Widgetset("com.mjurik.MyAppWidgetset")
-public class MyUI extends UI {
+@Theme("valo")
+@Title("Numismatics History")
+public class CrawlerResultsUI extends UI {
 
     TextField filter = new TextField();
     Grid contactList = new Grid();
@@ -76,7 +73,7 @@ public class MyUI extends UI {
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
+    @VaadinServletConfiguration(ui = CrawlerResultsUI.class, productionMode = false)
     public static class MyUIServlet extends VaadinServlet {
     }
 }
