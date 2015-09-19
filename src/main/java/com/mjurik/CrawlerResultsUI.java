@@ -22,7 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 public class CrawlerResultsUI extends UI {
 
     TextField filter = new TextField();
-    Grid contactList = new Grid();
+    Grid crawlerResults = new Grid();
 
     CrawlerResultForm resultForm = new CrawlerResultForm();
 
@@ -39,20 +39,22 @@ public class CrawlerResultsUI extends UI {
         filter.setInputPrompt("Filter results...");
         filter.addTextChangeListener(e -> refreshResults(e.getText()));
 
-        contactList.setContainerDataSource(new BeanItemContainer<>(CrawlerResult.class));
-        contactList.setColumnOrder("firstName", "lastName");
-//        contactList.removeColumn("id");
-        contactList.setSelectionMode(Grid.SelectionMode.SINGLE);
-        contactList.addSelectionListener(e
-                -> resultForm.edit((CrawlerResult) contactList.getSelectedRow()));
+        crawlerResults.setContainerDataSource(new BeanItemContainer<>(CrawlerResult.class));
+        crawlerResults.setColumnOrder("name", "price", "variant", "source");
+        crawlerResults.removeColumn("id");
+        crawlerResults.removeColumn("ean");
+        crawlerResults.removeColumn("path");
+        crawlerResults.setSelectionMode(Grid.SelectionMode.SINGLE);
+        crawlerResults.addSelectionListener(e
+                -> resultForm.edit((CrawlerResult) crawlerResults.getSelectedRow()));
         refreshResults();
     }
 
     private void buildLayout() {
-        VerticalLayout left = new VerticalLayout(filter, contactList);
+        VerticalLayout left = new VerticalLayout(filter, crawlerResults);
         left.setSizeFull();
-        contactList.setSizeFull();
-        left.setExpandRatio(contactList, 1);
+        crawlerResults.setSizeFull();
+        left.setExpandRatio(crawlerResults, 1);
 
         HorizontalLayout mainLayout = new HorizontalLayout(left, resultForm);
         mainLayout.setSizeFull();
@@ -62,12 +64,16 @@ public class CrawlerResultsUI extends UI {
         setContent(mainLayout);
     }
 
-    void refreshResults() {
+    public void unSelectResult() {
+        crawlerResults.select(null);
+    }
+
+    public void refreshResults() {
         refreshResults(filter.getValue());
     }
 
     private void refreshResults(String stringFilter) {
-        contactList.setContainerDataSource(new BeanItemContainer<>(
+        crawlerResults.setContainerDataSource(new BeanItemContainer<>(
                 CrawlerResult.class, service.findAll(stringFilter)));
         resultForm.setVisible(false);
     }

@@ -11,8 +11,17 @@ public class CrawlerResult implements Serializable, Cloneable {
 
     private String id;
 
-    private String firstName;
-    private String lastName;
+    private CrawlerSource source;
+
+    private String name;
+
+    private String ean;
+
+    private String variant;
+
+    private String price;
+
+    private String path;
 
     public String getId() {
         return id;
@@ -22,20 +31,61 @@ public class CrawlerResult implements Serializable, Cloneable {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public CrawlerSource getSource() {
+        return source;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setSource(CrawlerSource source) {
+        this.source = source;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getName() {
+        return name;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEan() {
+        return ean;
+    }
+
+    public void setEan(String ean) {
+        this.ean = ean;
+    }
+
+    public String getVariant() {
+        return variant;
+    }
+
+    public void setVariant(String variant) {
+        this.variant = variant;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public boolean matchFulltextSearch(String searchString) {
+        return id.toLowerCase().contains(searchString) ||
+                source.toString().contains(searchString) ||
+                name.toString().contains(searchString) ||
+                (ean != null && ean.toLowerCase().contains(searchString)) ||
+                (variant != null && variant.toLowerCase().contains(searchString)) ||
+                (path != null && path.toLowerCase().contains(searchString));
     }
 
     @Override
@@ -47,12 +97,4 @@ public class CrawlerResult implements Serializable, Cloneable {
         }
     }
 
-    @Override
-    public String toString() {
-        return "CrawlerResult{" +
-                "id='" + id + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
-    }
 }
