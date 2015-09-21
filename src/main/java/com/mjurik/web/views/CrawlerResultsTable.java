@@ -1,14 +1,11 @@
 package com.mjurik.web.views;
 
 import com.mjurik.web.data.CrawlerResult;
-import com.mjurik.web.views.forms.CrawlerResultForm;
 import com.mjurik.web.services.ResultsService;
+import com.mjurik.web.views.forms.CrawlerResultForm;
+import com.mjurik.web.views.forms.NewCoinForm;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 
 /**
  * Created by Marian Jurik on 19.9.2015.
@@ -18,6 +15,7 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
     TextField filter = new TextField();
     Grid crawlerResults = new Grid();
 
+    Panel rightPanelHolder;
     CrawlerResultForm resultForm;
 
     ResultsService service = ResultsService.getInstance();
@@ -40,8 +38,12 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
         crawlerResults.removeColumn("path");
         crawlerResults.setSelectionMode(Grid.SelectionMode.SINGLE);
         crawlerResults.addSelectionListener(e
-                -> resultForm.edit((CrawlerResult) crawlerResults.getSelectedRow()));
-        refreshResults();
+                -> {
+            rightPanelHolder.setVisible(true);
+            rightPanelHolder.setSizeUndefined();
+            rightPanelHolder.setContent(resultForm);
+            resultForm.edit((CrawlerResult) crawlerResults.getSelectedRow());
+        });
     }
 
     private void buildLayout() {
@@ -50,7 +52,10 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
         crawlerResults.setSizeFull();
         left.setExpandRatio(crawlerResults, 1);
 
-        HorizontalLayout mainLayout = new HorizontalLayout(left, resultForm);
+        rightPanelHolder = new Panel();
+        rightPanelHolder.setContent(resultForm);
+
+        HorizontalLayout mainLayout = new HorizontalLayout(left, rightPanelHolder);
         mainLayout.setSizeFull();
         mainLayout.setExpandRatio(left, 1);
 
@@ -67,9 +72,22 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
         refreshResults(filter.getValue());
     }
 
+    @Override
+    public void displaySaveNewForm(CrawlerResult result) {
+        unSelectResult();
+        resultForm.setVisible(false);
+        NewCoinForm newCoinForm = new NewCoinForm(this);
+        newCoinForm.edit(result);
+        rightPanelHolder.setContent(newCoinForm);
+    }
+
     private void refreshResults(String stringFilter) {
         crawlerResults.setContainerDataSource(new BeanItemContainer<>(
                 CrawlerResult.class, service.findAll(stringFilter)));
+        if (rightPanelHolder.getContent() != resultForm) {
+            rightPanelHolder.setContent(null);
+        }
+        rightPanelHolder.setVisible(false);
         resultForm.setVisible(false);
     }
 

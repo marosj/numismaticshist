@@ -1,8 +1,10 @@
 package com.mjurik.web.data;
 
-import java.io.Serializable;
-
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * Created by Marian Jurik on 19.9.2015.
@@ -22,6 +24,8 @@ public class CrawlerResult implements Serializable, Cloneable {
     private String price;
 
     private String path;
+
+    private LocalDate processed;
 
     public String getId() {
         return id;
@@ -79,13 +83,21 @@ public class CrawlerResult implements Serializable, Cloneable {
         this.path = path;
     }
 
+    public LocalDate getProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(LocalDate processed) {
+        this.processed = processed;
+    }
+
     public boolean matchFulltextSearch(String searchString) {
-        return id.toLowerCase().contains(searchString) ||
-                source.toString().contains(searchString) ||
-                name.toString().contains(searchString) ||
-                (ean != null && ean.toLowerCase().contains(searchString)) ||
-                (variant != null && variant.toLowerCase().contains(searchString)) ||
-                (path != null && path.toLowerCase().contains(searchString));
+        return id.toLowerCase().contains(searchString)
+                || StringUtils.containsIgnoreCase(source.toString(), searchString)
+                || StringUtils.containsIgnoreCase(name, searchString)
+                || StringUtils.containsIgnoreCase(ean, searchString)
+                || StringUtils.containsIgnoreCase(variant, searchString)
+                || StringUtils.containsIgnoreCase(path, searchString);
     }
 
     @Override

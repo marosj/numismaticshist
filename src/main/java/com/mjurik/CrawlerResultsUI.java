@@ -1,7 +1,5 @@
 package com.mjurik;
 
-import javax.servlet.annotation.WebServlet;
-
 import com.mjurik.web.views.CoinsTable;
 import com.mjurik.web.views.CrawlerResultsTable;
 import com.vaadin.annotations.Theme;
@@ -9,11 +7,9 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
+
+import javax.servlet.annotation.WebServlet;
 
 @Theme("valo")
 @Title("Numismatics History")
@@ -39,10 +35,12 @@ public class CrawlerResultsUI extends UI {
 
     public void displayCrawler(Button.ClickEvent event) {
         content.setContent(resultsTable);
+        resultsTable.refreshResults();
     }
 
     public void displayCoins(Button.ClickEvent event) {
         content.setContent(coinsTable);
+        coinsTable.refreshCoins();
     }
 
     private void buildLayout() {

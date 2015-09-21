@@ -1,15 +1,17 @@
 package com.mjurik.web.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.mjurik.web.crawler.db.CoinPersistence;
 import com.mjurik.web.crawler.db.EuronEuPersistence;
 import com.mjurik.web.crawler.db.IgnoredPathPersistence;
 import com.mjurik.web.crawler.db.NumEuPersistence;
+import com.mjurik.web.crawler.db.entity.Coin;
 import com.mjurik.web.crawler.db.entity.EuronEuResult;
 import com.mjurik.web.crawler.db.entity.NumEuResult;
 import com.mjurik.web.data.CrawlerResult;
 import com.mjurik.web.data.CrawlerSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Marian Jurik on 19.9.2015.
@@ -64,6 +66,15 @@ public class ResultsService {
 
     public void ignore(CrawlerSource source, String id, String path) {
         IgnoredPathPersistence.INSTANCE.persistIgnoredPath(source.toString(), path);
+        setAsProcessed(source, id);
+    }
+
+    public void saveAsNewCoin(Coin coin, CrawlerResult crawlerResult) {
+        CoinPersistence.INSTANCE.persistNewCoin(coin);
+        setAsProcessed(crawlerResult.getSource(), crawlerResult.getId());
+    }
+
+    private void setAsProcessed(CrawlerSource source, String id) {
         switch (source) {
             case NUMIZMATIK:
                 NumEuPersistence.INSTANCE.setAsProcessed(id);
@@ -72,7 +83,6 @@ public class ResultsService {
                 EuronEuPersistence.INSTANCE.setAsProcessed(id);
                 break;
         }
-
     }
 
     private CrawlerResult toCrawlerResult(EuronEuResult euronEuResult) {
@@ -84,8 +94,8 @@ public class ResultsService {
         cr.setPath(euronEuResult.getPath());
         cr.setPrice(euronEuResult.getPrice());
         cr.setVariant(euronEuResult.getVariant());
+        cr.setProcessed(euronEuResult.getStartDate());
         return cr;
-
     }
 
     private CrawlerResult toCrawlerResult(NumEuResult numEuResult) {
@@ -97,6 +107,7 @@ public class ResultsService {
         cr.setPath(numEuResult.getPath());
         cr.setPrice(numEuResult.getPrice());
         cr.setVariant(numEuResult.getVariant());
+        cr.setProcessed(numEuResult.getStartDate());
         return cr;
     }
 }

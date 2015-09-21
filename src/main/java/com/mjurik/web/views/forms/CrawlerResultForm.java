@@ -42,6 +42,8 @@ public class CrawlerResultForm extends FormLayout {
         void unSelectResult();
 
         void refreshResults();
+
+        void displaySaveNewForm(CrawlerResult result);
     }
 
     public CrawlerResultForm(ParentTable parentTable) {
@@ -84,21 +86,7 @@ public class CrawlerResultForm extends FormLayout {
     }
 
     public void save(Button.ClickEvent event) {
-        try {
-            formFieldBindings.commit();
-
-            // Save DAO to backend with direct synchronous service API
-//            getUI().service.save(contact);
-
-            String msg = String.format("Saved '%s'.",
-                    crawlerResult.getName());
-            Notification.show(msg, Notification.Type.TRAY_NOTIFICATION);
-            parentTable.refreshResults();
-        } catch (FieldGroup.CommitException e) {
-            // Validation exceptions could be shown here
-
-            e.printStackTrace();
-        }
+        parentTable.displaySaveNewForm(crawlerResult);
     }
 
 
