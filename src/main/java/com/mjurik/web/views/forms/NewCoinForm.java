@@ -21,10 +21,10 @@ public class NewCoinForm extends FormLayout {
     Button cancel = new Button("Cancel", this::cancel);
 
     TextField name = new TextField("Name");
-    TextField nominal = new TextField("Nominal");
+    ComboBox nominal = new ComboBox("Nominal");
     TextField description = new TextField("Description");
 
-    TextField variantField = new TextField("Variant");
+    ComboBox variantField = new ComboBox("Variant");
     TextField priceField = new TextField("Price");
 
     BeanFieldGroup<Coin> formFieldBindings;
@@ -43,6 +43,13 @@ public class NewCoinForm extends FormLayout {
     private void configureComponents() {
         save.setStyleName(ValoTheme.BUTTON_PRIMARY);
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
+        variantField.setNullSelectionAllowed(false);
+        variantField.setInvalidAllowed(false);
+        variantField.addItems(Variant.values());
+        nominal.setNullSelectionAllowed(true);
+        nominal.setInvalidAllowed(false);
+        nominal.addItems(NominalValue.values());
     }
 
     private void buildLayout() {
@@ -90,7 +97,7 @@ public class NewCoinForm extends FormLayout {
                 variant.setVariant(NameUtils.parseVariant(crawlerResult.getName()));
             }
             coin.addVariant(variant);
-            variantField.setValue(variant.getVariant().toString());
+            variantField.setValue(variant.getVariant());
 
             CoinVariantHistory history = new CoinVariantHistory();
             history.setDate(crawlerResult.getProcessed());
