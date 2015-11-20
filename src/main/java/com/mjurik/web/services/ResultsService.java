@@ -12,6 +12,7 @@ import com.mjurik.web.data.CrawlerSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Marian Jurik on 19.9.2015.
@@ -44,6 +45,21 @@ public class ResultsService {
                 CrawlerResult cr = toCrawlerResult(euronEuResult);
                 addToResultIfMatches(stringFilter, result, cr);
             }
+        }
+        return result;
+    }
+
+    public List<CrawlerResult> findUnprocessedWithExactMatch() {
+        List<CrawlerResult> result = new ArrayList<>();
+
+        List<NumEuResult> numEuResults = NumEuPersistence.INSTANCE.listUnprocessedWithProcessedMatch();
+        if (numEuResults != null) {
+            result.addAll(numEuResults.stream().map(this::toCrawlerResult).collect(Collectors.toList()));
+        }
+
+        List<EuronEuResult> euronEuResults = EuronEuPersistence.INSTANCE.listUnprocessedWithProcessedMatch();
+        if (euronEuResults != null) {
+            result.addAll(euronEuResults.stream().map(this::toCrawlerResult).collect(Collectors.toList()));
         }
         return result;
     }

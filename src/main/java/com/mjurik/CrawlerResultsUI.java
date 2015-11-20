@@ -1,7 +1,8 @@
 package com.mjurik;
 
 import com.mjurik.web.views.CoinsTable;
-import com.mjurik.web.views.CrawlerResultsTable;
+import com.mjurik.web.views.CrawlerUnprocessedTable;
+import com.mjurik.web.views.CrawlerUnprocessedWithMatchTable;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -15,11 +16,13 @@ import javax.servlet.annotation.WebServlet;
 @Title("Numismatics History")
 public class CrawlerResultsUI extends UI {
 
-    Button crawler = new Button("Crawler", this::displayCrawler);
-    Button coins = new Button("Coins", this::displayCoins);
+    Button allUnprocessedBtn = new Button("All unprocessed", this::displayAllUnprocessed);
+    Button unprocessedWithMatchBtn = new Button("Unprocessed with match", this::displayUnprocessedWithMatch);
+    Button coinsBtn = new Button("Coins", this::displayCoins);
 
     Panel content = new Panel();
-    CrawlerResultsTable resultsTable = new CrawlerResultsTable();
+    CrawlerUnprocessedTable unprocessedTable = new CrawlerUnprocessedTable();
+    CrawlerUnprocessedWithMatchTable unprocessedWithMatchTable = new CrawlerUnprocessedWithMatchTable();
     CoinsTable coinsTable = new CoinsTable();
 
 
@@ -33,9 +36,14 @@ public class CrawlerResultsUI extends UI {
 
     }
 
-    public void displayCrawler(Button.ClickEvent event) {
-        content.setContent(resultsTable);
-        resultsTable.refreshResults();
+    public void displayAllUnprocessed(Button.ClickEvent event) {
+        content.setContent(unprocessedTable);
+        unprocessedTable.refreshResults();
+    }
+
+    public void displayUnprocessedWithMatch(Button.ClickEvent event) {
+        content.setContent(unprocessedWithMatchTable);
+        unprocessedWithMatchTable.refreshResults();
     }
 
     public void displayCoins(Button.ClickEvent event) {
@@ -45,7 +53,7 @@ public class CrawlerResultsUI extends UI {
 
     private void buildLayout() {
 
-        HorizontalLayout actions = new HorizontalLayout(crawler, coins);
+        HorizontalLayout actions = new HorizontalLayout(unprocessedWithMatchBtn, allUnprocessedBtn, coinsBtn);
         actions.setSpacing(true);
 
         VerticalLayout mainLayout = new VerticalLayout(actions, content);
@@ -53,7 +61,7 @@ public class CrawlerResultsUI extends UI {
         content.setSizeFull();
         mainLayout.setExpandRatio(content, 1);
 
-        displayCrawler(null);
+        displayUnprocessedWithMatch(null);
 
         setContent(mainLayout);
     }

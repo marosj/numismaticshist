@@ -10,9 +10,8 @@ import com.vaadin.ui.*;
 /**
  * Created by Marian Jurik on 19.9.2015.
  */
-public class CrawlerResultsTable extends CustomComponent implements CrawlerResultForm.ParentTable {
+public class CrawlerUnprocessedWithMatchTable extends CustomComponent implements CrawlerResultForm.ParentTable {
 
-    TextField filter = new TextField();
     Grid crawlerResults = new Grid();
 
     Panel rightPanelHolder;
@@ -20,16 +19,13 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
 
     ResultsService service = ResultsService.getInstance();
 
-    public CrawlerResultsTable() {
+    public CrawlerUnprocessedWithMatchTable() {
         configureComponents();
         buildLayout();
     }
 
     private void configureComponents() {
         resultForm = new CrawlerResultForm(this);
-
-        filter.setInputPrompt("Filter results...");
-        filter.addTextChangeListener(e -> refreshResults(e.getText()));
 
         crawlerResults.setContainerDataSource(new BeanItemContainer<>(CrawlerResult.class));
         crawlerResults.setColumnOrder("name", "price", "variant", "source");
@@ -47,7 +43,7 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
     }
 
     private void buildLayout() {
-        VerticalLayout left = new VerticalLayout(filter, crawlerResults);
+        VerticalLayout left = new VerticalLayout(crawlerResults);
         left.setSizeFull();
         crawlerResults.setSizeFull();
         left.setExpandRatio(crawlerResults, 1);
@@ -69,7 +65,13 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
 
     @Override
     public void refreshResults() {
-        refreshResults(filter.getValue());
+        crawlerResults.setContainerDataSource(new BeanItemContainer<>(
+                CrawlerResult.class, service.findUnprocessedWithExactMatch()));
+        if (rightPanelHolder.getContent() != resultForm) {
+            rightPanelHolder.setContent(null);
+        }
+        rightPanelHolder.setVisible(false);
+        resultForm.setVisible(false);
     }
 
     @Override
@@ -79,16 +81,6 @@ public class CrawlerResultsTable extends CustomComponent implements CrawlerResul
         NewCoinForm newCoinForm = new NewCoinForm(this);
         newCoinForm.edit(result);
         rightPanelHolder.setContent(newCoinForm);
-    }
-
-    private void refreshResults(String stringFilter) {
-        crawlerResults.setContainerDataSource(new BeanItemContainer<>(
-                CrawlerResult.class, service.findAll(stringFilter)));
-        if (rightPanelHolder.getContent() != resultForm) {
-            rightPanelHolder.setContent(null);
-        }
-        rightPanelHolder.setVisible(false);
-        resultForm.setVisible(false);
     }
 
 }
