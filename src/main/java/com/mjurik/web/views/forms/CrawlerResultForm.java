@@ -1,16 +1,13 @@
 package com.mjurik.web.views.forms;
 
 import com.mjurik.web.data.CrawlerResult;
+import com.mjurik.web.data.LinkUtils;
 import com.mjurik.web.services.ResultsService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.TextField;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -25,10 +22,9 @@ public class CrawlerResultForm extends FormLayout {
     TextField name = new TextField("Name");
     TextField ean = new TextField("Ean");
     TextField id = new TextField("id");
-    Label path = new Label();
     TextField price = new TextField("Price");
     TextField variant = new TextField("Variant");
-    TextField source = new TextField("Source");
+    Link sourceLink = new Link();
 
     CrawlerResult crawlerResult;
 
@@ -56,8 +52,6 @@ public class CrawlerResultForm extends FormLayout {
         save.setStyleName(ValoTheme.BUTTON_PRIMARY);
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         id.setEnabled(false);
-        path.setCaption("Path");
-        source.setEnabled(false);
         setVisible(false);
     }
 
@@ -68,7 +62,7 @@ public class CrawlerResultForm extends FormLayout {
         HorizontalLayout actions = new HorizontalLayout(save, ignore, cancel);
         actions.setSpacing(true);
 
-        addComponents(actions, id, name, price, variant, ean, path, source);
+        addComponents(actions, id, name, price, variant, ean, sourceLink);
     }
 
     public void ignore(Button.ClickEvent event) {
@@ -99,7 +93,9 @@ public class CrawlerResultForm extends FormLayout {
         this.crawlerResult = crawlerResult;
         if(crawlerResult != null) {
             formFieldBindings = BeanFieldGroup.bindFieldsBuffered(crawlerResult, this);
-            path.setPropertyDataSource(formFieldBindings.getItemDataSource().getItemProperty("path"));
+            sourceLink.setCaption(LinkUtils.getSourceUrl(crawlerResult));
+            sourceLink.setResource(new ExternalResource(LinkUtils.getUrl(crawlerResult)));
+            sourceLink.setTargetName("_blank");
             name.focus();
         }
         setVisible(crawlerResult != null);

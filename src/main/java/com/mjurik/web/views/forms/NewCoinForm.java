@@ -4,11 +4,13 @@ import com.mjurik.web.crawler.Money;
 import com.mjurik.web.crawler.PriceUtils;
 import com.mjurik.web.crawler.db.entity.*;
 import com.mjurik.web.data.CrawlerResult;
+import com.mjurik.web.data.LinkUtils;
 import com.mjurik.web.data.NameUtils;
 import com.mjurik.web.services.ResultsService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -26,6 +28,7 @@ public class NewCoinForm extends FormLayout {
 
     ComboBox variantField = new ComboBox("Variant");
     TextField priceField = new TextField("Price");
+    Link sourceLink = new Link();
 
     BeanFieldGroup<Coin> formFieldBindings;
     Coin coin;
@@ -59,7 +62,7 @@ public class NewCoinForm extends FormLayout {
         HorizontalLayout actions = new HorizontalLayout(save, cancel);
         actions.setSpacing(true);
 
-        addComponents(actions, name, nominal, description, variantField, priceField);
+        addComponents(actions, name, nominal, description, variantField, priceField, sourceLink);
     }
 
     public void save(Button.ClickEvent event) {
@@ -111,6 +114,10 @@ public class NewCoinForm extends FormLayout {
             priceField.setValue(price.toString());
 
             formFieldBindings = BeanFieldGroup.bindFieldsBuffered(coin, this);
+
+            sourceLink.setCaption(LinkUtils.getSourceUrl(crawlerResult));
+            sourceLink.setResource(new ExternalResource(LinkUtils.getUrl(crawlerResult)));
+            sourceLink.setTargetName("_blank");
 
             name.focus();
         }
