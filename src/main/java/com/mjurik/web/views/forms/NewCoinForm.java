@@ -4,6 +4,7 @@ import com.mjurik.web.crawler.Money;
 import com.mjurik.web.crawler.PriceUtils;
 import com.mjurik.web.crawler.db.entity.*;
 import com.mjurik.web.data.CrawlerResult;
+import com.mjurik.web.data.NameUtils;
 import com.mjurik.web.services.ResultsService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -22,6 +23,9 @@ public class NewCoinForm extends FormLayout {
     TextField name = new TextField("Name");
     TextField nominal = new TextField("Nominal");
     TextField description = new TextField("Description");
+
+    TextField variantField = new TextField("Variant");
+    TextField priceField = new TextField("Price");
 
     BeanFieldGroup<Coin> formFieldBindings;
     Coin coin;
@@ -48,7 +52,7 @@ public class NewCoinForm extends FormLayout {
         HorizontalLayout actions = new HorizontalLayout(save, cancel);
         actions.setSpacing(true);
 
-        addComponents(actions, name, nominal, description);
+        addComponents(actions, name, nominal, description, variantField, priceField);
     }
 
     public void save(Button.ClickEvent event) {
@@ -77,25 +81,30 @@ public class NewCoinForm extends FormLayout {
         if(crawlerResult != null) {
             coin = new Coin();
             coin.setName(crawlerResult.getName());
-            coin.setNominal(NominalValue.E_100);
+            coin.setNominal(NameUtils.parseNominal(crawlerResult.getName()));
 
             CoinVariant variant = new CoinVariant();
 //        variant.setReleaseDate(LocalDate.now());
-            variant.setVariant(Variant.PROOF);
+            variant.setVariant(NameUtils.parseVariant(crawlerResult.getVariant()));
+            if (variant.getVariant() == Variant.UNKNOWN) {
+                variant.setVariant(NameUtils.parseVariant(crawlerResult.getName()));
+            }
             coin.addVariant(variant);
+            variantField.setValue(variant.getVariant().toString());
 
             CoinVariantHistory history = new CoinVariantHistory();
             history.setDate(crawlerResult.getProcessed());
             history.setSource(crawlerResult.getSource().toString());
             Money price = PriceUtils.parse(crawlerResult.getPrice());
             if (price == null) {
-                history.setPrice(Money.euros(0.0));
-            } else {
-                history.setPrice(price);
+                price = Money.euros(0.0);
             }
+            history.setPrice(price);
             variant.addHistory(history);
+            priceField.setValue(price.toString());
 
             formFieldBindings = BeanFieldGroup.bindFieldsBuffered(coin, this);
+
             name.focus();
         }
         setVisible(crawlerResult != null);
