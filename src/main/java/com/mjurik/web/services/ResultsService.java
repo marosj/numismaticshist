@@ -32,36 +32,32 @@ public class ResultsService {
 
         List<NumEuResult> numEuResults = NumEuPersistence.INSTANCE.listUnprocessed();
         if (numEuResults != null) {
-            try {
-                for (NumEuResult numEuResult : numEuResults) {
-                    CrawlerResult cr = toCrawlerResult(numEuResult);
-                    boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
-                            || cr.matchFulltextSearch(stringFilter);
-                    if (passesFilter) {
-                        result.add(cr.clone());
-                    }
-                }
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
+            for (NumEuResult numEuResult : numEuResults) {
+                CrawlerResult cr = toCrawlerResult(numEuResult);
+                addToResultIfMatches(stringFilter, result, cr);
             }
         }
 
         List<EuronEuResult> euronEuResults = EuronEuPersistence.INSTANCE.listUnprocessed();
         if (euronEuResults != null) {
+            for (EuronEuResult euronEuResult : euronEuResults) {
+                CrawlerResult cr = toCrawlerResult(euronEuResult);
+                addToResultIfMatches(stringFilter, result, cr);
+            }
+        }
+        return result;
+    }
+
+    private void addToResultIfMatches(String stringFilter, List<CrawlerResult> result, CrawlerResult cr) {
+        boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
+                || cr.matchFulltextSearch(stringFilter);
+        if (passesFilter) {
             try {
-                for (EuronEuResult euronEuResult : euronEuResults) {
-                    CrawlerResult cr = toCrawlerResult(euronEuResult);
-                    boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
-                            || cr.matchFulltextSearch(stringFilter);
-                    if (passesFilter) {
-                        result.add(cr.clone());
-                    }
-                }
+                result.add(cr.clone());
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
         }
-        return result;
     }
 
     public void ignore(CrawlerSource source, String id, String path) {
