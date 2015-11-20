@@ -1,5 +1,7 @@
 package com.mjurik.web.views.forms;
 
+import com.mjurik.web.crawler.Money;
+import com.mjurik.web.crawler.PriceUtils;
 import com.mjurik.web.crawler.db.entity.*;
 import com.mjurik.web.data.CrawlerResult;
 import com.mjurik.web.services.ResultsService;
@@ -8,9 +10,6 @@ import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-
-import java.math.BigDecimal;
-import java.util.Currency;
 
 /**
  * Created by Marian Jurik on 21.9.2015.
@@ -86,10 +85,14 @@ public class NewCoinForm extends FormLayout {
             coin.addVariant(variant);
 
             CoinVariantHistory history = new CoinVariantHistory();
-            history.setCurrency(Currency.getInstance("EUR"));
             history.setDate(crawlerResult.getProcessed());
             history.setSource(crawlerResult.getSource().toString());
-            history.setPrice(new BigDecimal("123.45"));
+            Money price = PriceUtils.parse(crawlerResult.getPrice());
+            if (price == null) {
+                history.setPrice(Money.euros(0.0));
+            } else {
+                history.setPrice(price);
+            }
             variant.addHistory(history);
 
             formFieldBindings = BeanFieldGroup.bindFieldsBuffered(coin, this);
